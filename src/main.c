@@ -1,7 +1,5 @@
 #include "main.h"
 
-#define MYSCREENDEPTH 2;
-
 struct Screen* pScreen = NULL;
 struct Window* pWindow = NULL;
 struct GfxBase* GfxBase;
@@ -21,34 +19,27 @@ int main(int argc, char* argv[]) {
     myCopperlist = (struct UCopList*)AllocMem(sizeof(struct UCopList), MEMF_PUBLIC | MEMF_CLEAR);
 
     SetAPen(pWindow->RPort, 1);
+    Move(pWindow->RPort, 80, 50);
+    Text(pWindow->RPort, "amiga rulez", 11);
 
-    int counter01 = 0;
-    int counter256 = 0;
+    mySignals = SetSignal(0L, 0L);
+    int counter01 = 0, counter256 = 0;
 
     while (!(mySignals & SIGBREAKF_CTRL_C)) {
 
       if (counter01 < 32) { counter01++; } else { counter01 = 0; }
       if (counter256 < 256) { counter256++; } else { counter256 = 0; }
 
-
       CINIT(myCopperlist, 64);
-
       for (int i = 0; i < 32; i++) {
         CWAIT(myCopperlist, i * 16 - counter256, 0);
-        CMOVE(myCopperlist, custom.color[1], 0x08f1 + (i*0x0844));
-        CMOVE(myCopperlist, custom.color[0], 0x08f1 - ((32+i)*0x0844));
+        CMOVE(myCopperlist, custom.color[1], 0x08f1 + (i * 0x0844));
+        CMOVE(myCopperlist, custom.color[0], 0x08f1 - ((32 + i) * 0x0844));
       }
-
       CEND(myCopperlist);
 
       pScreen->ViewPort.UCopIns = myCopperlist;
-
       RethinkDisplay();
-
-      Move(pWindow->RPort, 80, 50);
-      Text(pWindow->RPort, "amiga rulez", 11);
-
-      mySignals = SetSignal(0L, 0L);
     }
   }
   close();
@@ -56,7 +47,6 @@ int main(int argc, char* argv[]) {
 }
 
 static int init(void) {
-
   IntuitionBase = (struct IntuitionBase*)OpenLibrary("intuition.library", 36L);
   if (IntuitionBase == NULL) {
     return -1;
@@ -110,27 +100,20 @@ static int init(void) {
   if (pWindow == NULL) {
     return -1;
   }
-
   return 0;
 }
 
 static void close(void) {
-
   if (pWindow) {
     CloseWindow(pWindow);
   }
-
   if (pScreen) {
     CloseScreen(pScreen);
   }
-
-  //-----------------------------------------------------
   if (IntuitionBase) {
     CloseLibrary((struct Library*)IntuitionBase);
   }
-
   if (GfxBase) {
     CloseLibrary((struct Library*)GfxBase);
   }
-
 }
